@@ -56,11 +56,11 @@ if (mysqli_query($mysqli, $query_deleteComment)) {
             echo "<script>alert('Delete diary fail!')</script>";
         };
     } else if ($type == 2) {
-        $query_deleteImage = "DELETE FROM `imagetable` WHERE `imagetable`.`postid` = '$postid'";
-        if (mysqli_query($mysqli, $query_deleteImage)) {
-            $query_deleteTalkTable = "delete from talktable where `talktable`.`postid` = '$postid'";
-            if (mysqli_query($mysqli, $query_deleteTalkTable)) {
-                $query_deletePost = "delete from userpost where `userpost`.`postid` = '$postid'";
+        $query_deleteTalkTable = "delete from talktable where postid = '$postid'";
+        if (mysqli_query($mysqli, $query_deleteTalkTable)) {
+            $query_deleteImage = "DELETE FROM imagetable WHERE postid = '$postid'";
+            if (mysqli_query($mysqli, $query_deleteImage)) {
+                $query_deletePost = "delete from userpost where postid = '$postid'";
                 if (mysqli_query($mysqli, $query_deletePost)) {
                     echo "<script>alert('Delete successfully')</script>";
                     echo "<script type='text/javascript'>";
@@ -76,10 +76,10 @@ if (mysqli_query($mysqli, $query_deleteComment)) {
             echo "<script>alert('Delete image fail!')</script>";
         }
     } else {
-        $query_deleteVideo = "DELETE FROM `videotable` WHERE `videotable`.`postid` = '$postid'";
-        if (mysqli_query($mysqli, $query_deleteVideo)) {
-            $query_deleteTalkTable = "delete from talktable where `talktable`.`postid` = '$postid'";
-            if (mysqli_query($mysqli, $query_deleteTalkTable)) {
+        $query_deleteTalkTable = "delete from talktable where postid = '$postid'";
+        if (mysqli_query($mysqli, $query_deleteTalkTable)) {
+            $query_deleteVideo = "DELETE FROM `videotable` WHERE `videotable`.`postid` = '$postid'";
+            if (mysqli_query($mysqli, $query_deleteVideo)) {
                 $query_deletePost = "delete from userpost where `userpost`.`postid` = '$postid'";
                 if (mysqli_query($mysqli, $query_deletePost)) {
                     echo "<script>alert('Delete successfully')</script>";

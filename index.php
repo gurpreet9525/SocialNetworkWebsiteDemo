@@ -187,8 +187,13 @@ for ($j = 0; $j <= count($recent_post); $j++){
         });
     </script>
     <script>
-        function deletePost() {
-            document.getElementById("deleteF").submit();
+        function deletePostT() {
+            document.getElementById("deleteFT").submit();
+        }
+    </script>
+    <script>
+        function deletePostD() {
+            document.getElementById("deleteFD").submit();
         }
     </script>
 
@@ -426,8 +431,8 @@ for ($j = 0; $j <= count($recent_post); $j++){
                                //"DELETE FROM `userpost` WHERE `userpost`.`PostId` = 157"
                                ?>
 
-                               <span style="cursor: pointer" class='label label-danger' onclick="deletePost()">Delete</span>
-                           <form id="deleteF" action="deletepost.php" method="post">
+                               <span style="cursor: pointer" class='label label-danger' onclick="deletePostD()">Delete</span>
+                           <form id="deleteFD" action="deletepost.php" method="post">
                                <input type="hidden" name="type" value=<?php echo $recent_show[$i][7]?>>
                                <input type="hidden" name="postid" value=<?php echo $recent_show[$i][9]?>>
                            </form>
@@ -436,12 +441,12 @@ for ($j = 0; $j <= count($recent_post); $j++){
 
                            </p>
                            <h1 class="post-title" align="center">
-                           <a class="post-title-link" href="#">
+                           <a class="post-title-link" href="test.php?postid=<?php echo $recent_show[$i][9]?>">
                                <?php echo $recent_show[$i][2] ?>
                            </a>
                            </h1><?php  ?>
                            <br />
-                           <!--    0: userId 1: username, 2: talk/title, 3: postTime, 4: location 5: tag, 6: img or video/diaryContent 7: postType-->
+ <!--  0: userId 1: username, 2: talk/title, 3: postTime, 4: location 5: tag, 6: img or video/diaryContent 7: postType 8: userPortrait 9: postId-->
                            <div class="post-body">
                                <?php echo
                                htmlspecialchars_decode($recent_show[$i][6])?>
@@ -566,6 +571,8 @@ for ($j = 0; $j <= count($recent_post); $j++){
                               <span class="post-meta-item-icon">
                                   <i class="fa fa-comment-o"></i>
                               </span>
+
+
                               <a  data-toggle="collapse" href="#comment<?php echo $recent_show[$i][9]?>">
                                   <?php
 
@@ -591,8 +598,8 @@ for ($j = 0; $j <= count($recent_post); $j++){
                         //"DELETE FROM `userpost` WHERE `userpost`.`PostId` = 157"
                         ?>
 
-                        <span style="cursor: pointer" class='label label-danger' onclick="deletePost()">Delete</span>
-                        <form id="deleteF" action="deletepost.php" method="post">
+                        <span style="cursor: pointer" class='label label-danger' onclick="deletePostT()">Delete</span>
+                        <form id="deleteFT" action="deletepost.php" method="post">
                             <input type="hidden" name="type" value=<?php echo $recent_show[$i][7]?>>
                             <input type="hidden" name="postid" value=<?php echo $recent_show[$i][9]?>>
                         </form>
@@ -752,31 +759,24 @@ for ($j = 0; $j <= count($recent_post); $j++){
         </div>
     </div>
 
-
     <footer id="footer" class="footer">
         <div class="footer-inner">
             <div class="copyright" >
-
                 &copy;
-                <span itemprop="copyrightYear">2017</span>
+                <span>2017</span>
                 <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-                <span class="author" itemprop="copyrightHolder">Ucm</span>
+                    <i class="fa fa-heart"></i>
+                </span>
+                <span class="author" style="cursor: pointer"><a href="https://github.com/ucmucm">喵喵喵</a></span>
             </div>
-
-<!--            <div class="powered-by">-->
-<!--                Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>-->
-<!--            </div>-->
-<!---->
-<!--            <div class="theme-info">-->
-<!--                Theme --->
-<!--                <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">-->
-<!--                    NexT.Pisces-->
-<!--                </a>-->
-<!--            </div>-->
+            <div class="author">
+                Made by <a class="theme-link" href="https://github.com/ucmucm">Ucm</a>
+            </div>
         </div>
     </footer>
+
+
+
 </div>
 </body>
 </html>

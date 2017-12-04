@@ -52,7 +52,7 @@ else {
 
 $recent_show = array();
 
-// 0: userId 1: username, 2: talk/title, 3: postTime, 4: location 5: tag, 6: img or video/diaryContent 7: postType 8: userPortrait
+// 0: userId 1: username, 2: talk/title, 3: postTime, 4: location 5: tag, 6: img or video/diaryContent 7: postType 8: userPortrait 9: postId
 
 $k = 0;
 for ($j = 0; $j <= count($recent_post); $j++){
@@ -62,6 +62,7 @@ for ($j = 0; $j <= count($recent_post); $j++){
     $userId = $recent_post[$j][1];
     // set userId
     $recent_show[$j][0] = $userId;
+    $recent_show[$j][9] = $postId;
 
     // set username;
     $query_username = "select username from userinfo where userid = '$userId'";
@@ -169,6 +170,11 @@ for ($j = 0; $j <= count($recent_post); $j++){
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        function deletePost() {
+            document.getElementById("deleteF").submit();
+        }
+    </script>
 
 </head>
 <body>
@@ -379,10 +385,39 @@ for ($j = 0; $j <= count($recent_post); $j++){
                                    <span class="post-meta-item-icon">
                                        <i class="fa fa-comment-o"></i>
                                    </span>
-                                   <a href="#comments">
-                                       <span class="post-comments-count hc-comment-count"></span>
+                                   <a data-toggle="collapse" href="#comment<?php echo $recent_show[$i][9]?>">
+                                  <?php
+                                  // comment count
+                                  $query_comment_count = "select commentcount from userpost where postid = {$recent_show[$i][9]}";
+                                  $comment_count = mysqli_fetch_row(mysqli_query($mysqli, $query_comment_count))[0];
+                                  echo $comment_count;
+
+                                  ?>
                                    </a>
+                                   <span class="post-meta-divider">|</span>
                                </span>
+
+                                    <?php
+                                    if ($uid == $recent_show[$i][0]) {
+                                    // PostType = 0: TalkTalk, 1: Diary 2: Image 3: Video
+
+                                    // 顺序 先删talktable 再删image/video 最后post
+                                    // 先删 diarytable 再删post
+                                    // DELETE FROM `imagetable` WHERE `imagetable`.`IMAGEID` = 34"
+                                    //"DELETE FROM `talktable` WHERE `talktable`.`TalkId` = 29"
+                                    //"DELETE FROM `diarytable` WHERE `diarytable`.`DIARYID` = 28"
+                                    //"DELETE FROM `userpost` WHERE `userpost`.`PostId` = 157"
+                                    ?>
+
+                                    <span style="cursor: pointer" class='label label-danger' onclick="deletePost()">Delete</span>
+                                <form id="deleteF" action="deletepost.php" method="post">
+                                    <input type="hidden" name="type" value=<?php echo $recent_show[$i][7]?>>
+                                    <input type="hidden" name="postid" value=<?php echo $recent_show[$i][9]?>>
+                                </form>
+
+                                <?php } ?>
+
+
                                 </p>
                                 <h1 class=\"post-title\" align="center">
                                     <a class=\"post-title-link\" href=\"#\" itemprop=\"url\">
@@ -393,7 +428,84 @@ for ($j = 0; $j <= count($recent_post); $j++){
                                 <div class="post-body">
                                     <?php echo htmlspecialchars_decode($recent_show[$i][6])?>
                                 </div>
-                                <br /><br />
+                                <br />
+
+                                <footer class="post-footer">
+                                    <a class="btn btn-info" data-toggle="collapse" href="#comment<?php echo $recent_show[$i][9]?>" id="comments<?php echo $recent_show[$i][9]?>" aria-expanded="false" aria-controls="comment">
+                                   <span class="post-meta-item-icon">
+                                       <i class="fa fa-comment-o"></i>
+                                   </span>
+                                    </a>
+                                    <div class="post-eof"></div>
+
+                                    <div class="collapse" id="comment<?php echo $recent_show[$i][9]?>">
+                                        <div class="card card-block">
+
+                                            <?php
+
+                                            $query_comment = "select userid, commentcontent, commentdate from commenttable where postid = {$recent_show[$i][9]} ORDER by commentdate";
+                                            if ($comment_result = mysqli_query($mysqli, $query_comment)){
+                                                while ($comment_row = mysqli_fetch_row($comment_result)){
+
+                                                    // find username and portrait path
+                                                    $query_comment_userInfo = "select username, user_portrait_path  from userinfo where userid = '$comment_row[0]'";
+                                                    $fetch_comment_userInfo = mysqli_fetch_row(mysqli_query($mysqli, $query_comment_userInfo));
+                                                    $comment_username = $fetch_comment_userInfo[0];
+                                                    $comment_user_portrait = $fetch_comment_userInfo[1];
+
+                                                    $comment_date = $comment_row[2];
+                                                    $comment_content = $comment_row[1];
+                                                    ?>
+                                                    <div class="row">
+                                                        <br />
+                                                        <div class="col-xs-2 col-sm-2">
+                                                            <p><img src=<?php echo $comment_user_portrait?>></p>
+                                                        </div>
+                                                        <div class="col-xs-10 col-sm-10">
+                                                            <b style="cursor: pointer" onclick="location='profile.php?uid=<?php echo $comment_row[0]?>'"><?php echo $comment_username ?></b>&nbsp;&nbsp;&nbsp;
+                                                            <span class="post-time">
+                                        <span class="post-meta-item-icon">
+                                            <i class="fa fa-calendar-o"></i>
+                                        </span>
+                                        <span class="post-meta-item-text">Posted on</span>
+                                        <time title="Post created" >
+                                            <?php echo $comment_date?>
+                                        </time>
+                                    </span>
+
+                                                            <br />
+                                                            <p><?php echo $comment_content?></p>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                }
+                                            }
+
+                                            ?>
+                                        </div>
+                                        <div class="card card-block">
+                                            <iframe style="display:none;" id="hiddenPost" name="hiddenPost"></iframe>
+
+                                            <form action="addnewcomment.php" method="post" target="hiddenPost">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" rows="3" placeholder="Add your comment..." name="comment" required="required"></textarea>
+                                                    <input type="hidden" name = "postid" value= <?php echo $recent_show[$i][9]?>>
+                                                    <input type="hidden" name = "userid" value= <?php echo $recent_show[$i][0]?>>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-primary pull-right">Comment</button>
+                                                    </div>
+                                                </div>
+                                            </form> <br />
+                                        </div>
+                                    </div>
+                                </footer>
+
+
+
+
+                                <br />
                             </div>
                         </div>
 
@@ -404,7 +516,7 @@ for ($j = 0; $j <= count($recent_post); $j++){
 
                         <div class="row">
                             <div class="col-xs-2 col-sm-2">
-                                <p><img style="cursor: pointer" onclick="location='userTimeLine.php?uid=<?php echo $userId?>'"
+                                <p><img style="cursor: pointer" onclick="location='userTimeLine.php?uid=<?php echo $recent_show[$i][0]?>'"
                                         src= <?php echo ($recent_show[$i][8] == null) ? "img/defaultP.jpg" : $recent_show[$i][8] ?>></p>
                             </div>
                             <div class="col-xs-10 col-sm-10">
@@ -441,10 +553,43 @@ for ($j = 0; $j <= count($recent_post); $j++){
                               <span class="post-meta-item-icon">
                                   <i class="fa fa-comment-o"></i>
                               </span>
-                              <a href="#comments">
-                                  <span class="post-comments-count hc-comment-count"></span>
+
+                              <a  data-toggle="collapse" href="#comment<?php echo $recent_show[$i][9]?>">
+                                  <?php
+
+                                  // comment count
+                                  $query_comment_count = "select commentcount from userpost where postid = {$recent_show[$i][9]}";
+                                  $comment_count = mysqli_fetch_row(mysqli_query($mysqli, $query_comment_count))[0];
+                                  echo $comment_count;
+
+                                  ?>
                               </a>
+                                                                  <span class="post-meta-divider">|</span>
+
                           </span>
+
+                                <?php
+                                if ($uid == $recent_show[$i][0]) {
+                                    // PostType = 0: TalkTalk, 1: Diary 2: Image 3: Video
+
+                                    // 顺序 先删talktable 再删image/video 最后post
+                                    // 先删 diarytable 再删post
+                                    // DELETE FROM `imagetable` WHERE `imagetable`.`IMAGEID` = 34"
+                                    //"DELETE FROM `talktable` WHERE `talktable`.`TalkId` = 29"
+                                    //"DELETE FROM `diarytable` WHERE `diarytable`.`DIARYID` = 28"
+                                    //"DELETE FROM `userpost` WHERE `userpost`.`PostId` = 157"
+                                    ?>
+
+                                    <span style="cursor: pointer" class='label label-danger' onclick="deletePost()">Delete</span>
+                                    <form id="deleteF" action="deletepost.php" method="post">
+                                        <input type="hidden" name="type" value=<?php echo $recent_show[$i][7]?>>
+                                        <input type="hidden" name="postid" value=<?php echo $recent_show[$i][9]?>>
+                                    </form>
+
+                                <?php } ?>
+
+
+
                                 <!--    0: userId 1: username, 2: talk/title, 3: postTime, 4: location 5: tag, 6: img or video/diaryContent 7: postType-->
                                 <div class="post-body newFontSize">
                                     <?php echo $recent_show[$i][2]?><br />
@@ -459,7 +604,95 @@ for ($j = 0; $j <= count($recent_post); $j++){
                                         <?php echo '<video width="538.75" height="387.89" controls="controls" src = "'.$recent_show[$i][6].'"></video>'; ?>
                                     <?php }?>
                                 </div>
-                                <br /><br />
+                                <br />
+
+                                <footer class="post-footer">
+                                    <a class="btn btn-info" data-toggle="collapse" href="#comment<?php echo $recent_show[$i][9]?>" id="comments<?php echo $recent_show[$i][9]?>" aria-expanded="false" aria-controls="comment">
+                            <span class="post-meta-item-icon">
+                                  <i class="fa fa-comment-o"></i>
+                            </span>
+                                    </a>
+                                    <div class="post-eof"></div>
+
+                                    <div class="collapse" id="comment<?php echo $recent_show[$i][9]?>">
+                                        <div class="card card-block" id="tail">
+
+                                            <?php
+
+                                            $query_comment = "select userid, commentcontent, commentdate from commenttable where postid = {$recent_show[$i][9]} ORDER by commentdate";
+                                            if ($comment_result = mysqli_query($mysqli, $query_comment)){
+                                                while ($comment_row = mysqli_fetch_row($comment_result)){
+
+                                                    // find username and portrait path
+                                                    $query_comment_userInfo = "select username, user_portrait_path  from userinfo where userid = '$comment_row[0]'";
+                                                    $fetch_comment_userInfo = mysqli_fetch_row(mysqli_query($mysqli, $query_comment_userInfo));
+                                                    $comment_username = $fetch_comment_userInfo[0];
+                                                    $comment_user_portrait = $fetch_comment_userInfo[1];
+
+                                                    $comment_date = $comment_row[2];
+                                                    $comment_content = $comment_row[1];
+                                                    ?>
+                                                    <div class="row">
+                                                        <br />
+                                                        <div class="col-xs-2 col-sm-2">
+                                                            <p><img src=<?php echo $comment_user_portrait?>></p>
+                                                        </div>
+                                                        <div class="col-xs-10 col-sm-10">
+                                                            <b style="cursor: pointer" onclick="location='profile.php?uid=<?php echo $comment_row[0]?>'"><?php echo $comment_username ?></b>&nbsp;&nbsp;&nbsp;
+                                                            <span class="post-time">
+                                        <span class="post-meta-item-icon">
+                                            <i class="fa fa-calendar-o"></i>
+                                        </span>
+                                        <span style="cursor: pointer" class="post-meta-item-text">Posted on</span>
+                                        <time title="Post created" >
+                                            <?php echo $comment_date?>
+                                        </time>
+                                    </span>
+                                                            <br />
+                                                            <p><?php echo $comment_content?></p>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+
+                                                }
+                                            }
+                                            ?>
+
+                                        </div>
+                                        <div class="card card-block">
+                                            <iframe style="display:none;" id="hiddenPost" name="hiddenPost"></iframe>
+
+                                            <form action="addnewcomment.php" method="post" target="hiddenPost">
+
+                                                <div class="form-group">
+                                                    <textarea class="form-control" rows="3" placeholder="Add your comment..." name="comment" required="required"></textarea>
+                                                    <input type="hidden" name = "postid" value= <?php echo $recent_show[$i][9]?>>
+                                                    <input type="hidden" name = "userid" value= <?php echo $recent_show[$i][0]?>>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-group">
+                                                        <button id="iii" type="submit" class="btn btn-primary pull-right">Comment</button>
+                                                    </div>
+                                                </div>
+                                            </form><br />
+
+
+                                        </div>
+                                    </div>
+
+                                </footer>
+
+
+
+
+
+
+
+
+
+
+
+                                <br />
                             </div>
                         </div>
 
@@ -523,6 +756,18 @@ for ($j = 0; $j <= count($recent_post); $j++){
             </dl>
         </div>
     </div>
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+                &copy;
+                <span itemprop="copyrightYear">2017</span>
+                <span class="with-love">
+                    <i class="fa fa-heart"></i>
+                </span>
+                <span class="author" href="https://github.com/ucmucm" style="cursor: pointer">Ucm</span>
+            </div>
+        </div>
+    </footer>
 </div>
 </body>
 </html>
