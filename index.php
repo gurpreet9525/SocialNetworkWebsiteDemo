@@ -7,9 +7,6 @@ if($_SESSION['loggedin']!=1) {
     exit;
 }
 
-//到这里为止
-//下面就可以写保护页面的内容了，使用get方法传参数来log out
-
 $uid = $_COOKIE['userId'];
 $username = $_COOKIE['userName'];
 $isLastPage = false;
@@ -227,9 +224,9 @@ for ($j = 0; $j <= count($recent_post); $j++){
                             <a href="#">Message</a>
                         </li>
                     </ul>
-                    <form class="navbar-form navbar-left" role="search">
+                    <form action="search.php" method="post" class="navbar-form navbar-left" role="search">
                         <div class="form-group">
-                            <input type="text" class="form-control" />
+                            <input type="text" class="form-control" name="searchContent" />
                         </div> <button type="submit" class="btn btn-default">Search</button>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
@@ -429,6 +426,7 @@ for ($j = 0; $j <= count($recent_post); $j++){
                                //"DELETE FROM `talktable` WHERE `talktable`.`TalkId` = 29"
                                //"DELETE FROM `diarytable` WHERE `diarytable`.`DIARYID` = 28"
                                //"DELETE FROM `userpost` WHERE `userpost`.`PostId` = 157"
+
                                ?>
 
                                <span style="cursor: pointer" class='label label-danger' onclick="deletePostD()">Delete</span>
